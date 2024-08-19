@@ -1,17 +1,26 @@
 // features/balanceSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = 10000; // Set the initial balance to 10,000
+const initialState = 0; // Set the initial balance to 10,000
 
 const balanceSlice = createSlice({
   name: 'balance',
   initialState,
   reducers: {
-    updateBalance(state, action) {
-      return state - action.payload; // Decrease balance by the amount spent
+    // Deduct amount when buying stocks
+    buyStock(state, action) {
+      return state - action.payload; // Subtract the purchase amount from the balance
+    },
+    // Add amount when selling stocks
+    sellStock(state, action) {
+      return state + action.payload; // Add the sale amount to the balance
+    },
+    // Increase balance by the amount added (e.g., from deposits)
+    addBalance(state, action) {
+      return state + action.payload;
     },
   },
 });
 
-export const { updateBalance } = balanceSlice.actions;
+export const { buyStock, sellStock, addBalance } = balanceSlice.actions;
 export default balanceSlice.reducer;

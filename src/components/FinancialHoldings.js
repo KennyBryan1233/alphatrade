@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { sellStock, exitAllStocks } from '../features/portfolioSlice';
-import { updateBalance } from '../features/balanceSlice';
+import { buyStock, sellStock as updateBalance } from '../features/balanceSlice';
 import { updateStockPrice } from '../features/stockPricesSlice';
 import './FinancialHoldings.css';
 
@@ -50,12 +50,38 @@ const FinancialHoldings = () => {
         const totalSaleAmount = quantity * sellPrice;
 
         dispatch(sellStock({ symbol, quantity }));
-        dispatch(updateBalance(walletBalance + totalSaleAmount));
+        dispatch(updateBalance(totalSaleAmount));  // Add the total sale amount to the wallet balance
 
         alert(`Sold ${quantity} shares of ${symbol} at ₹${sellPrice.toFixed(2)} each. Total Sale Amount: ₹${totalSaleAmount.toFixed(2)}`);
     };
 
+    const handleBuy = (symbol) => {
+        const quantity = parseInt(prompt(`Enter quantity of ${symbol} to buy:`), 10);
+        const buyPrice = stockPrices[symbol] || 100; // Default buy price if not found
+
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Invalid quantity entered');
+            return;
+        }
+
+        const totalPurchaseAmount = quantity * buyPrice;
+
+        if (totalPurchaseAmount > walletBalance) {
+            alert('Insufficient balance to buy the stock');
+            return;
+        }
+
+        dispatch(sellStock({ symbol, quantity, buyPrice }));
+        dispatch(buyStock(totalPurchaseAmount));  // Deduct the total purchase amount from the wallet balance
+
+        alert(`Bought ${quantity} shares of ${symbol} at ₹${buyPrice.toFixed(2)} each. Total Purchase Amount: ₹${totalPurchaseAmount.toFixed(2)}`);
+    };
+
     const handleExitAll = () => {
+        portfolio.forEach(stock => {
+            const totalSaleAmount = stock.quantity * (stockPrices[stock.symbol] || stock.buyPrice || 0);
+            dispatch(updateBalance(totalSaleAmount));  // Add the total sale amount of each stock to the wallet balance
+        });
         dispatch(exitAllStocks());
     };
 

@@ -1,10 +1,11 @@
+// src/components/Dashboard.js
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StockChart from './StockChart';
 import { stocksData } from '../data/stocksData';
 import { addStock } from '../features/portfolioSlice';
 import { updateStockPrice } from '../features/stockPricesSlice';
-import { updateBalance } from '../features/balanceSlice'; // Import the updateBalance action
+import { buyStock, addBalance } from '../features/balanceSlice'; // Import the actions
 import './Dashboard.css';
 
 const Dashboard = ({ onLogout }) => {
@@ -50,7 +51,7 @@ const Dashboard = ({ onLogout }) => {
                     buyPrice: buyPrice
                 };
                 dispatch(addStock(updatedStock));
-                dispatch(updateBalance(walletBalance - totalCost)); // Reduce the wallet balance
+                dispatch(buyStock(totalCost)); // Deduct the total cost from the wallet balance
                 alert(`Bought ${quantity} shares of ${selectedStock.symbol} at ₹${buyPrice.toFixed(2)}`);
                 setQuantity(0); // Reset quantity after purchase
             } else {
